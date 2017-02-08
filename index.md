@@ -16,7 +16,7 @@ if($sp){
 #Functions:
 Open websocket connection
 
-**resource websocket_open(string $host [,int $port [,array $additional_headers [,string &error_string ,[, int $timeout]]]]
+**resource websocket_open(string $host [,int $port [,array $additional_headers [,string &error_string ,[, int $timeout]]]]**
   
 **host**
 A host URL. It can be a domain name like www.example.com or an IP address,  with port number. Local host example: 127.0.0.1:8080
@@ -42,7 +42,7 @@ a resource handle or false.
 
 Write to websocket
   
-**int websocket_write(resource $handle, string $data ,[boolean $final])
+**int websocket_write(resource $handle, string $data ,[boolean $final])**
   
 Write data through the websocket, using hybi10 frame encoding
   
@@ -61,7 +61,7 @@ indicate if this block is the final data block of this request. Default true
 
 Read from websocket
 
-**string websocket_read(resource $handle [,string &error_string])
+**string websocket_read(resource $handle [,string &error_string])**
   
 read data from the server, using hybi10 frame encoding
   
