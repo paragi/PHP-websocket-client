@@ -78,8 +78,7 @@ Note:
 #Contribute
 
 Please let me know if there is any problems with the code.
-Any contributions are accepted, if the code looks ok.
-
+Any contributions are accepted, if the code looks nice, not bloated and otherwise reasonable.
 
 #License: MIT: Free
 
