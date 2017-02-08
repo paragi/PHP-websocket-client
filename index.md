@@ -1,7 +1,7 @@
 ##This is 3 simple functions, to implement a websocket client for PHP
 
 Example:
-`<?php
+```<?php
 $headers = ["Cookie: SID=".session_id()];
 $sp = websocket_open('example.com',80,$headers,$errstr,16);
 if($sp){
@@ -11,11 +11,11 @@ if($sp){
      echo "Server responed with: " . $errstr ? $errstr : $data;
    }
 }
-?>`
+?>```
 
 #Functions:
 Open websocket connection
-###resource websocket_open(string $host [,int $port [,array $additional_headers [,string &error_string ,[, int $timeout]]]]
+**resource websocket_open(string $host [,int $port [,array $additional_headers [,string &error_string ,[, int $timeout]]]]
   
 **host**
    A host URL. It can be a domain name like www.example.com or an IP address,  with port number. Local host example: 127.0.0.1:8080
@@ -37,7 +37,7 @@ Open websocket connection
 
 Write to websocket
   
-###int websocket_write(resource $handle, string $data ,[boolean $final])
+**int websocket_write(resource $handle, string $data ,[boolean $final])
   
 Write a chunk of data through the websocket, using hybi10 frame encoding
   
@@ -52,7 +52,7 @@ Write a chunk of data through the websocket, using hybi10 frame encoding
 
 
 Read from websocket
-###string websocket_read(resource $handle [,string &error_string])
+**string websocket_read(resource $handle [,string &error_string])
   
 read data from the server, using hybi10 frame encoding
   
