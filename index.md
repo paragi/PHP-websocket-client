@@ -1,7 +1,7 @@
-##websocket client for PHP
+##Websocket client for PHP
 
 Use PHP to connect to at websocket service.
-Thise 3 functions makes the websocket negotiation and connection anf handle the hybi10 frame encoding required.
+Thise 3 functions makes the websocket negotiation and connection and handle the hybi10 frame encoding required.
 
 Example 1:
 ```<?php
@@ -31,7 +31,7 @@ if($sp){
 
 Open websocket connection
 
-`resource` websocket_open(`string` $host [,`int` $port [,`array` $additional_headers [,`string` &error_string ,[, `int` $timeout]]]]
+`resource` websocket_open(`string` $host [,`int` $port [,`array` $additional_headers [,`string` &error_string ,[, `int` $timeout]]]] )
   
 **host** A host URL. It can be a domain name like www.example.com or an IP address like local host: 127.0.0.1
     
@@ -39,7 +39,7 @@ Open websocket connection
     
 **headers** (optional) additional HTTP headers to attach to the request. For example to parse a session cookie.
     
-**error_string** (optional) A referenced variable to store error messages, i any.
+**error_string** (optional) A referenced variable to store error messages, if any.
     
 **timeout** (optional) The maximum time in seconds, a read operation will wait for an answer from the server. Default value is 10 seconds.
 
@@ -48,8 +48,8 @@ Open websocket connection
 
 ##websocket_write
 
-Send data to server through the websocket, using hybi10 frame encoding
-  
+Send data to server through the websocket, using hybi10 frame encoding.
+
 `int` websocket_write(`resource` $handle, `string` $data [,`boolean` $final])
   
 **handle** the resource handle returned by websocket_open, if successful
