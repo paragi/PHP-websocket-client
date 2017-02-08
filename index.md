@@ -11,7 +11,7 @@ if($sp){
      echo "Server responed with: " . $errstr ? $errstr : $data;
    }
 }
-?>```
+```
 
 #Functions:
 Open websocket connection
