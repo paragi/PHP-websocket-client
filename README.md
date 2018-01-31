@@ -1,4 +1,4 @@
-##Websocket client for PHP
+## Websocket client for PHP
 
 Use PHP to connect to at websocket service.
 Thise 3 functions makes the websocket negotiation and connection and handle the hybi10 frame encoding required.
@@ -25,9 +25,9 @@ if($sp){
 }
 ```
 
-#Functions:
+# Functions:
 
-##websocket_open
+## websocket_open
 
 Open websocket connection
 
@@ -46,7 +46,7 @@ Open websocket connection
 **returns** a resource handle or false.
 
 
-##websocket_write
+## websocket_write
 
 Send data to server through the websocket, using hybi10 frame encoding.
 
@@ -58,7 +58,7 @@ Send data to server through the websocket, using hybi10 frame encoding.
     
 **final** (optional) indicate if this block is the final data block of this request. Default true  
 
-##websocket_read
+## websocket_read
 
 Read data through websocket from the server, using hybi10 frame encoding.
 
@@ -75,11 +75,11 @@ Note:
 - Reading data while handling/ignoring other kind of packages
     
 
-#Contribute
+# Contribute
 
 Please let me know if there is any problems with the code.
 Any contributions are accepted, if the code looks nice, not bloated and otherwise reasonable.
 
-#License: MIT: Free
+# License: MIT: Free
 
 
