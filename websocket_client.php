@@ -61,7 +61,7 @@
   If the server accepts, it sends a 101 response header, containing 
   "Sec-WebSocket-Accept"
 \*============================================================================*/
-function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout=10){
+function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout=10,$ssl=false){
 
   // Generate a key (to convince server that the update is not random)
   // The key is for the server to prove it i websocket aware. (We know it is)
@@ -84,7 +84,9 @@ function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout
   // Connect to server  
   $host = $host ? $host : "127.0.0.1";
   $port = $port <1 ? 80 : $port;
-  $sp=fsockopen($host, $port , $errno, $errstr,$timeout); 
+  $address = ($ssl ? 'ssl://' . '') . $host . ':' . $port;
+  $sp = stream_socket_client($address, $errno, $errstr, $timeout);
+  
   if(!$sp){
     $error_string = "Unable to connect to websocket server: $errstr ($errno)";
     return false;
