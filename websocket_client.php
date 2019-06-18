@@ -1,15 +1,15 @@
 <?php
 /*----------------------------------------------------------------------------*\
-  Websocket client 
-  
+  Websocket client
+
   By Paragi 2013, Simon Riget MIT license.
-  
-  This is a demonstration of a websocket clinet. 
-  
+
+  This is a demonstration of a websocket clinet.
+
   If you find flaws in it, please let me know at simon.riget (at) gmail
-  
-  Websockets use hybi10 frame encoding: 
-  
+
+  Websockets use hybi10 frame encoding:
+
         0                   1                   2                   3
         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
        +-+-+-+-+-------+-+-------------+-------------------------------+
@@ -38,27 +38,27 @@
   Open websocket connection
 
   resource websocket_open(string $host [,int $port [,$additional_headers [,string &error_string ,[, int $timeout]]]]
-  
+
   host
-    A host URL. It can be a domain name like www.example.com or an IP address, 
+    A host URL. It can be a domain name like www.example.com or an IP address,
     with port number. Local host example: 127.0.0.1:8080
-    
-  port  
-    
+
+  port
+
   headers (optional)
-    additional HTTP headers to attach to the request.  
-    For example to parse a session cookie: "Cookie: SID=" . session_id()  
-    
+    additional HTTP headers to attach to the request.
+    For example to parse a session cookie: "Cookie: SID=" . session_id()
+
   error_string (optional)
     A referenced variable to store error messages, i any
-    
+
   timeout (optional)
-    The maximum time in seconds, a read operation will wait for an answer from 
+    The maximum time in seconds, a read operation will wait for an answer from
     the server. Default value is 10 seconds.
 
   Open a websocket connection by initiating a HTTP GET, with an upgrade request
-  to websocket. 
-  If the server accepts, it sends a 101 response header, containing 
+  to websocket.
+  If the server accepts, it sends a 101 response header, containing
   "Sec-WebSocket-Accept"
 \*============================================================================*/
 function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout=10,$ssl=false){
@@ -66,7 +66,7 @@ function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout
   // Generate a key (to convince server that the update is not random)
   // The key is for the server to prove it i websocket aware. (We know it is)
   $key=base64_encode(uniqid());
-  
+
   $header = "GET / HTTP/1.1\r\n"
     ."Host: $host\r\n"
     ."pragma: no-cache\r\n"
@@ -75,18 +75,18 @@ function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout
     ."Sec-WebSocket-Key: $key\r\n"
     ."Sec-WebSocket-Version: 13\r\n";
 
-  // Add extra headers 
-  if(!empty($headers)) foreach($headers as $h) $header.=$h."\r\n";  
+  // Add extra headers
+  if(!empty($headers)) foreach($headers as $h) $header.=$h."\r\n";
 
   // Add end of header marker
   $header.="\r\n";
-  
-  // Connect to server  
+
+  // Connect to server
   $host = $host ? $host : "127.0.0.1";
   $port = $port <1 ? 80 : $port;
-  $address = ($ssl ? 'ssl://' . '') . $host . ':' . $port;
+  $address = ($ssl ? 'ssl://' : '') . $host . ':' . $port;
   $sp = stream_socket_client($address, $errno, $errstr, $timeout);
-  
+
   if(!$sp){
     $error_string = "Unable to connect to websocket server: $errstr ($errno)";
     return false;
@@ -95,19 +95,19 @@ function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout
   // Set timeouts
   stream_set_timeout($sp,$timeout);
 
-  //Request upgrade to websocket 
+  //Request upgrade to websocket
   $rc = fwrite($sp,$header);
   if(!$rc){
-    $error_string 
+    $error_string
       = "Unable to send upgrade header to websocket server: $errstr ($errno)";
     return false;
   }
-  
+
   // Read response into an assotiative array of headers. Fails if upgrade failes.
   $reaponse_header=fread($sp, 1024);
 
   // status code 101 indicates that the WebSocket handshake has completed.
-  if(!strpos($reaponse_header," 101 ") 
+  if(!strpos($reaponse_header," 101 ")
     || !strpos($reaponse_header,'Sec-WebSocket-Accept: ')){
     $error_string = "Server did not accept to upgrade connection to websocket."
       .$reaponse_header. E_USER_ERROR;
@@ -115,61 +115,61 @@ function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout
   }
   // The key we send is returned, concatenate with "258EAFA5-E914-47DA-95CA-
   // C5AB0DC85B11" and then base64-encoded. one can verify if one feels the need...
-  
+
   return $sp;
 }
 
 /*============================================================================*\
   Write to websocket
-  
+
   int websocket_write(resource $handle, string $data ,[boolean $final])
-  
+
   Write a chunk of data through the websocket, using hybi10 frame encoding
-  
+
   handle
     the resource handle returned by websocket_open, if successful
-    
+
   data
     Data to transport to server
-    
+
   final (optional)
-    indicate if this block is the final data block of this request. Default true  
+    indicate if this block is the final data block of this request. Default true
 \*============================================================================*/
 function websocket_write($sp,$data,$final=true){
   // Assamble header: FINal 0x80 | Opcode 0x02
   $header=chr(($final?0x80:0) | 0x02); // 0x02 binary
 
-  // Mask 0x80 | payload length (0-125) 
-  if(strlen($data)<126) $header.=chr(0x80 | strlen($data));  
+  // Mask 0x80 | payload length (0-125)
+  if(strlen($data)<126) $header.=chr(0x80 | strlen($data));
   elseif (strlen($data)<0xFFFF) $header.=chr(0x80 | 126) . pack("n",strlen($data));
   else $header.=chr(0x80 | 127) . pack("N",0) . pack("N",strlen($data));
 
   // Add mask
-  $mask=pack("N",rand(1,0x7FFFFFFF));       
+  $mask=pack("N",rand(1,0x7FFFFFFF));
   $header.=$mask;
-  
-  // Mask application data. 
+
+  // Mask application data.
   for($i = 0; $i < strlen($data); $i++)
     $data[$i]=chr(ord($data[$i]) ^ ord($mask[$i % 4]));
-  
-  return fwrite($sp,$header.$data);    
+
+  return fwrite($sp,$header.$data);
 }
 
 /*============================================================================*\
   Read from websocket
 
   string websocket_read(resource $handle [,string &error_string])
-  
+
   read a chunk of data from the server, using hybi10 frame encoding
-  
+
   handle
     the resource handle returned by websocket_open, if successful
 
   error_string (optional)
     A referenced variable to store error messages, i any
 
-  Read 
- 
+  Read
+
   Note:
     - This implementation waits for the final chunk of data, before returning.
     - Reading data while handling/ignoring other kind of packages
@@ -189,7 +189,7 @@ function websocket_read($sp,&$error_string=NULL){
     $final = ord($header[0]) & 0x80;
     $masked = ord($header[1]) & 0x80;
     $payload_len = ord($header[1]) & 0x7F;
-    
+
     // Get payload length extensions
     $ext_len = 0;
     if($payload_len >= 0x7E){
@@ -200,13 +200,13 @@ function websocket_read($sp,&$error_string=NULL){
         $error_string = "Reading header extension from websocket failed.";
         return false;
       }
- 
+
       // Set extented paylod length
       $payload_len= 0;
-      for($i=0;$i<$ext_len;$i++) 
+      for($i=0;$i<$ext_len;$i++)
         $payload_len += ord($header[$i]) << ($ext_len-$i-1)*8;
     }
-    
+
     // Get Mask key
     if($masked){
       $mask=fread($sp,4);
@@ -215,7 +215,7 @@ function websocket_read($sp,&$error_string=NULL){
         return false;
       }
     }
-    
+
     // Get payload
     $frame_data='';
     do{
@@ -226,33 +226,33 @@ function websocket_read($sp,&$error_string=NULL){
       }
       $payload_len -= strlen($frame);
       $frame_data.=$frame;
-    }while($payload_len>0);    
+    }while($payload_len>0);
 
     // Handle ping requests (sort of) send pong and continue to read
     if($opcode == 9){
       // Assamble header: FINal 0x80 | Opcode 0x0A + Mask on 0x80 with zero payload
-      fwrite($sp,chr(0x8A) . chr(0x80) . pack("N", rand(1,0x7FFFFFFF)));    
+      fwrite($sp,chr(0x8A) . chr(0x80) . pack("N", rand(1,0x7FFFFFFF)));
       continue;
-      
+
     // Close
     } elseif($opcode == 8){
       fclose($sp);
-      
+
     // 0 = continuation frame, 1 = text frame, 2 = binary frame
-    }elseif($opcode < 3){ 
+    }elseif($opcode < 3){
       // Unmask data
       $data_len=strlen($frame_data);
       if($masked)
-        for ($i = 0; $i < $data_len; $i++) 
+        for ($i = 0; $i < $data_len; $i++)
           $data.= $frame_data[$i] ^ $mask[$i % 4];
-      else    
+      else
         $data.= $frame_data;
 
     }else
       continue;
 
   }while(!$final);
-    
+
   return $data;
 }
 ?>
