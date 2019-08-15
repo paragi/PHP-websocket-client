@@ -1,5 +1,7 @@
 ## Websocket client for PHP
 
+UPDATE 2019: Some servers require a longer key, than I previously used, resulting in connection refused. this has now been changed.
+
 Use PHP to connect to at websocket service.
 Thise 3 functions makes the websocket negotiation and connection and handle the hybi10 frame encoding required.
 
