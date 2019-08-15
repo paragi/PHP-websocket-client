@@ -65,7 +65,7 @@ function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout
 
   // Generate a key (to convince server that the update is not random)
   // The key is for the server to prove it i websocket aware. (We know it is)
-  $key=base64_encode(uniqid());
+  $key=base64_encode(openssl_random_pseudo_bytes(16));
 
   $header = "GET / HTTP/1.1\r\n"
     ."Host: $host\r\n"
