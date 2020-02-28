@@ -61,7 +61,7 @@
   If the server accepts, it sends a 101 response header, containing
   "Sec-WebSocket-Accept"
 \*============================================================================*/
-function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout=10,$ssl=false){
+function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout=10,$ssl=false, $persistant = true){
 
   // Generate a key (to convince server that the update is not random)
   // The key is for the server to prove it i websocket aware. (We know it is)
@@ -85,6 +85,10 @@ function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout
   $host = $host ? $host : "127.0.0.1";
   $port = $port <1 ? 80 : $port;
   $address = ($ssl ? 'ssl://' : '') . $host . ':' . $port;
+  // put in persistant ! if used in php-fpm, no handshare if same.
+  if ($persistant)
+    $sp = stream_socket_client($address, $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT | STREAM_CLIENT_PERSISTENT);
+  else
   $sp = stream_socket_client($address, $errno, $errstr, $timeout);
 
   if(!$sp){
@@ -95,27 +99,30 @@ function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout
   // Set timeouts
   stream_set_timeout($sp,$timeout);
 
-  //Request upgrade to websocket
-  $rc = fwrite($sp,$header);
-  if(!$rc){
-    $error_string
-      = "Unable to send upgrade header to websocket server: $errstr ($errno)";
-    return false;
+  if ($persistant AND ftell($sp) === 0) {
+
+    //Request upgrade to websocket
+    $rc = fwrite($sp,$header);
+    if(!$rc){
+      $error_string
+        = "Unable to send upgrade header to websocket server: $errstr ($errno)";
+      return false;
+    }
+
+    // Read response into an assotiative array of headers. Fails if upgrade failes.
+    $reaponse_header=fread($sp, 1024);
+
+    // status code 101 indicates that the WebSocket handshake has completed.
+    if(!strpos($reaponse_header," 101 ")
+      || !strpos($reaponse_header,'Sec-WebSocket-Accept: ')){
+      $error_string = "Server did not accept to upgrade connection to websocket."
+        .$reaponse_header. E_USER_ERROR;
+      return false;
+    }
+    // The key we send is returned, concatenate with "258EAFA5-E914-47DA-95CA-
+    // C5AB0DC85B11" and then base64-encoded. one can verify if one feels the need...
+
   }
-
-  // Read response into an assotiative array of headers. Fails if upgrade failes.
-  $reaponse_header=fread($sp, 1024);
-
-  // status code 101 indicates that the WebSocket handshake has completed.
-  if(!strpos($reaponse_header," 101 ")
-    || !strpos($reaponse_header,'Sec-WebSocket-Accept: ')){
-    $error_string = "Server did not accept to upgrade connection to websocket."
-      .$reaponse_header. E_USER_ERROR;
-    return false;
-  }
-  // The key we send is returned, concatenate with "258EAFA5-E914-47DA-95CA-
-  // C5AB0DC85B11" and then base64-encoded. one can verify if one feels the need...
-
   return $sp;
 }
 
