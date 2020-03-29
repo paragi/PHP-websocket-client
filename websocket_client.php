@@ -61,7 +61,7 @@
   If the server accepts, it sends a 101 response header, containing
   "Sec-WebSocket-Accept"
 \*============================================================================*/
-function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout=10,$ssl=false, $persistant = true){
+function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout=10,$ssl=false, $persistant = false){
 
   // Generate a key (to convince server that the update is not random)
   // The key is for the server to prove it i websocket aware. (We know it is)
