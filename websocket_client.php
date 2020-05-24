@@ -89,7 +89,7 @@ function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout
   if ($persistant)
     $sp = stream_socket_client($address, $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT | STREAM_CLIENT_PERSISTENT);
   else
-  $sp = stream_socket_client($address, $errno, $errstr, $timeout);
+    $sp = stream_socket_client($address, $errno, $errstr, $timeout);
 
   if(!$sp){
     $error_string = "Unable to connect to websocket server: $errstr ($errno)";
@@ -99,7 +99,7 @@ function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout
   // Set timeouts
   stream_set_timeout($sp,$timeout);
 
-  if ($persistant AND ftell($sp) === 0) {
+  if (!$persistant or ftell($sp) === 0) {
 
     //Request upgrade to websocket
     $rc = fwrite($sp,$header);
