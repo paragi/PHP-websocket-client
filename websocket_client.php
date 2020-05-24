@@ -61,13 +61,13 @@
   If the server accepts, it sends a 101 response header, containing
   "Sec-WebSocket-Accept"
 \*============================================================================*/
-function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout=10,$ssl=false, $persistant = false){
+function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout=10,$ssl=false, $persistant = false, $path = '/'){
 
   // Generate a key (to convince server that the update is not random)
   // The key is for the server to prove it i websocket aware. (We know it is)
   $key=base64_encode(openssl_random_pseudo_bytes(16));
 
-  $header = "GET / HTTP/1.1\r\n"
+  $header = "GET " . $path . " HTTP/1.1\r\n"
     ."Host: $host\r\n"
     ."pragma: no-cache\r\n"
     ."Upgrade: WebSocket\r\n"
