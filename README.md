@@ -4,7 +4,7 @@ UPDATE 2019: Some servers require a longer key, than I previously, resulting in 
 This has been fixed now.
 
 Use PHP to connect to at websocket service.
-Thise 3 functions makes the websocket negotiation and connection and handle the hybi10 frame encoding required.
+These 3 functions makes the websocket negotiation and connection and handle the hybi10 frame encoding required.
 
 Example 1:
 ```<?php
