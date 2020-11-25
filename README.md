@@ -28,6 +28,14 @@ if($sp){
 }
 ```
 
+Example 3, using SSL
+```<?php
+if( $sp = websocket_open('echo.websocket.org',443,'',$errstr, 10,true) ) {
+   websocket_write($sp,"hello server");
+   echo "Server responed with: " . websocket_read($sp,$errstr);
+}
+```
+
 # Functions:
 
 ## websocket_open

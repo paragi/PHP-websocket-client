@@ -56,12 +56,21 @@
     The maximum time in seconds, a read operation will wait for an answer from
     the server. Default value is 10 seconds.
 
+  ssl (optional)  
+
+  persistant (optional)
+
+  path (optional)
+
+  Context (optional)
+
+
   Open a websocket connection by initiating a HTTP GET, with an upgrade request
   to websocket.
   If the server accepts, it sends a 101 response header, containing
   "Sec-WebSocket-Accept"
 \*============================================================================*/
-function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout=10,$ssl=false, $persistant = false, $path = '/'){
+function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout=10,$ssl=false, $persistant = false, $path = '/', $context = null){
 
   // Generate a key (to convince server that the update is not random)
   // The key is for the server to prove it i websocket aware. (We know it is)
@@ -83,14 +92,13 @@ function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout
 
   // Connect to server
   $host = $host ? $host : "127.0.0.1";
-  $port = $port <1 ? 80 : $port;
+  $port = $port <1 ? ( $ssl ? 443 : 80 ): $port;
   $address = ($ssl ? 'ssl://' : '') . $host . ':' . $port;
-  // put in persistant ! if used in php-fpm, no handshare if same.
-  if ($persistant)
-    $sp = stream_socket_client($address, $errno, $errstr, $timeout, STREAM_CLIENT_CONNECT | STREAM_CLIENT_PERSISTENT);
-  else
-    $sp = stream_socket_client($address, $errno, $errstr, $timeout);
-
+  
+  $flags = STREAM_CLIENT_CONNECT | ( $persistant ? STREAM_CLIENT_PERSISTENT : 0 );
+  $ctx = $context ?? stream_context_create ();
+  $sp = stream_socket_client($address, $errno, $errstr, $timeout, $flags, $ctx);
+  
   if(!$sp){
     $error_string = "Unable to connect to websocket server: $errstr ($errno)";
     return false;

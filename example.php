@@ -4,7 +4,8 @@ $server = 'echo.websocket.org';
 $message = "hello server";
 
 echo "Connecting to server: $server \n";
-if( $sp = websocket_open($server, 80,'',$errstr, 10) ) {
+
+if( $sp = websocket_open($server, 443,'',$errstr, 10,true) ) {
   echo "Sending message to server: '$message' \n";
   websocket_write($sp,$message);
   echo "Server responed with: '" . websocket_read($sp,$errstr) ."'\n";
