@@ -1,6 +1,6 @@
 <?php
 /*----------------------------------------------------------------------------*\
-  Websocket client
+  Websocket client - https://github.com/paragi/PHP-websocket-client
 
   By Paragi 2013, Simon Riget MIT license.
 
@@ -149,10 +149,17 @@ function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout
 
   final (optional)
     indicate if this block is the final data block of this request. Default true
+
+  binary (optional)
+    indicate if this block is sent in binary or text mode.  Default true/binary
 \*============================================================================*/
-function websocket_write($sp,$data,$final=true){
-  // Assamble header: FINal 0x80 | Opcode 0x02
-  $header=chr(($final?0x80:0) | 0x02); // 0x02 binary
+function websocket_write($sp,$data,$final=true,$binary=true){
+  // Assemble header: FINal 0x80 | Mode (0x02 binary, 0x01 text)
+
+  if ($binary)
+      $header=chr(($final?0x80:0) | 0x02); // 0x02 binary mode
+  else
+      $header=chr(($final?0x80:0) | 0x01); // 0x01 text mode
 
   // Mask 0x80 | payload length (0-125)
   if(strlen($data)<126) $header.=chr(0x80 | strlen($data));
