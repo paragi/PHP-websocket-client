@@ -240,7 +240,7 @@ function websocket_read($sp,&$error_string=NULL){
 
     // Get payload
     $frame_data='';
-    do{
+    while($payload_len>0){
       $frame= fread($sp,$payload_len);
       if(!$frame){
         $error_string = "Reading from websocket failed.";
@@ -248,7 +248,7 @@ function websocket_read($sp,&$error_string=NULL){
       }
       $payload_len -= strlen($frame);
       $frame_data.=$frame;
-    }while($payload_len>0);
+    }
 
     // Handle ping requests (sort of) send pong and continue to read
     if($opcode == 9){
