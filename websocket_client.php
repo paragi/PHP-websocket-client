@@ -96,7 +96,7 @@ function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout
   $address = ($ssl ? 'ssl://' : '') . $host . ':' . $port;
   
   $flags = STREAM_CLIENT_CONNECT | ( $persistant ? STREAM_CLIENT_PERSISTENT : 0 );
-  $ctx = $context ?? stream_context_create ();
+  $ctx = $context ?? stream_context_create();
   $sp = stream_socket_client($address, $errno, $errstr, $timeout, $flags, $ctx);
   
   if(!$sp){

@@ -1,8 +1,5 @@
 ## Websocket client for PHP
 
-UPDATE 2019: Some servers require a longer key, than I previously, resulting in "connection refused" error. 
-This has been fixed now.
-
 Use PHP to connect to at websocket service.
 These 3 functions makes the websocket negotiation and connection and handle the hybi10 frame encoding required.
 
@@ -42,7 +39,7 @@ if( $sp = websocket_open('echo.websocket.org',443,'',$errstr, 10,true) ) {
 
 Open websocket connection
 
-`resource` websocket_open(`string` $host [,`int` $port [,`array` $additional_headers [,`string` &error_string ,[, `int` $timeout]]]] )
+`resource` websocket_open(`string` $host [, `int` $port [, `array` $additional_headers [, `string` &error_string [, `int` $timeout [, `resource` $context]]]]] )
 
 **host** A host URL. It can be a domain name like www.example.com or an IP address like local host: 127.0.0.1
 
@@ -53,6 +50,8 @@ Open websocket connection
 **error_string** (optional) A referenced variable to store error messages, if any.
 
 **timeout** (optional) The maximum time in seconds, a read operation will wait for an answer from the server. Default value is 10 seconds.
+
+**context** (optional) A stream context resource created with stream_context_create() used to set various socket stream options.
 
 **returns** a resource handle or false.
 
