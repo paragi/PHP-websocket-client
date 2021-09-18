@@ -4,7 +4,7 @@ Use PHP to connect to at websocket service.
 These 3 functions makes the websocket negotiation and connection and handle the hybi10 frame encoding required.
 
 Example 1:
-```<?php
+```php
 if( $sp = websocket_open('echo.websocket.org',80) ) {
    websocket_write($sp,"hello server");
    echo "Server responed with: " . websocket_read($sp,$errstr);
@@ -13,7 +13,7 @@ if( $sp = websocket_open('echo.websocket.org',80) ) {
 
 
 Example 2, using a session cookie and setting timeout:
-```<?php
+```php
 $headers = ["Cookie: SID=".session_id()];
 $sp = websocket_open('echo.websocket.org',80,$headers,$errstr,16);
 if($sp){
@@ -26,7 +26,7 @@ if($sp){
 ```
 
 Example 3, using SSL
-```<?php
+```php
 if( $sp = websocket_open('echo.websocket.org',443,'',$errstr, 10,true) ) {
    websocket_write($sp,"hello server");
    echo "Server responed with: " . websocket_read($sp,$errstr);
