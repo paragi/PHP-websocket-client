@@ -4,11 +4,13 @@
 
   By Paragi 2013, Simon Riget MIT license.
 
-  This is a demonstration of a websocket clinet.
+  This basic implementation, waits for the whole message to arive, before 
+  returning on a read. There is no support for partial and multiplexing packages.
+  All othert packagees are ignored, until a full package is read.
 
-  If you find flaws in it, please let me know at simon.riget (at) gmail
+  If you find flaws in this, please let me know at simon.riget (at) gmail
 
-  Websockets use hybi10 frame encoding:
+  Websockets using hybi10 frame encoding:
 
         0                   1                   2                   3
         0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -73,7 +75,7 @@
 function websocket_open($host='',$port=80,$headers='',&$error_string='',$timeout=10,$ssl=false, $persistant = false, $path = '/', $context = null){
 
   // Generate a key (to convince server that the update is not random)
-  // The key is for the server to prove it i websocket aware. (We know it is)
+  // The key is for the server to prove it is websocket aware. (We know it is)
   $key=base64_encode(openssl_random_pseudo_bytes(16));
 
   $header = "GET " . $path . " HTTP/1.1\r\n"
