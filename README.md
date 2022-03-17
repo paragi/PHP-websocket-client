@@ -6,7 +6,7 @@ These 3 methods make the websocket negotiation and connection and handle the hyb
 Example 1:
 ```php
 if( $sp = new \Paragi\PhpWebsocket\Client('echo.websocket.org',80) ) {
-   $sp->write($"hello server");
+   $sp->write("hello server");
    echo "Server responed with: " . $sp->read($errstr);
 }
 ```
@@ -39,7 +39,7 @@ if( $sp = new \Paragi\PhpWebsocket\Client('echo.websocket.org',443,'',$errstr, 1
 
 Open websocket connection
 
-`resource` websocket_open(`string` $host [, `int` $port [, `array` $additional_headers [, `string` &error_string [, `int` $timeout [, `resource` $context]]]]] )
+__construct(`string` $host [, `int` $port [, `array` $additional_headers [, `string` &error_string [, `int` $timeout [, `resource` $context]]]]] )
 
 **host** A host URL. It can be a domain name like www.example.com or an IP address like local host: 127.0.0.1
 
@@ -53,14 +53,11 @@ Open websocket connection
 
 **context** (optional) A stream context resource created with stream_context_create() used to set various socket stream options.
 
-**returns** a resource handle or false.
-
-
 ## write
 
 Send data to server through the websocket, using hybi10 frame encoding.
 
-`int` websocket_write(`resource` $handle, `string` $data [,`boolean` $final])
+`int` write(`string` $data [,`boolean` $final])
 
 **data** Data to transport to server
 
@@ -70,7 +67,7 @@ Send data to server through the websocket, using hybi10 frame encoding.
 
 Read data through websocket from the server, using hybi10 frame encoding.
 
-`string` websocket_read(`resource` $handle [,`string` &error_string])
+`string` read([`string` &error_string])
 
 **error_string** (optional) A referenced variable to store error messages, i any.
 
