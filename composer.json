@@ -8,7 +8,7 @@
     "license": "MIT",
     "autoload": {
         "psr-4": {
-            "Paragi\\PhpWebsocketClient\\": "src/"
+            "Paragi\\PhpWebsocket\\": "src/"
         }
     },
     "minimum-stability": "dev",
