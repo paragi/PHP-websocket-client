@@ -81,7 +81,7 @@ class Client
       "Sec-WebSocket-Accept"
       \*============================================================================ */
 
-    public function websocket_open(string $host = '', int $port = 80, $headers = '', &$error_string = '', int $timeout = 10, bool $ssl = false, bool $persistant = false, string $path = '/', $context = null)
+    public function __construct(string $host = '', int $port = 80, $headers = '', &$error_string = '', int $timeout = 10, bool $ssl = false, bool $persistant = false, string $path = '/', $context = null)
     {
 
         // Generate a key (to convince server that the update is not random)
@@ -91,6 +91,7 @@ class Client
         $header = "GET " . $path . " HTTP/1.1\r\n"
                 . "Host: $host\r\n"
                 . "pragma: no-cache\r\n"
+                . "User-Agent: paragi/php-websocket-client\r\n"
                 . "Upgrade: WebSocket\r\n"
                 . "Connection: Upgrade\r\n"
                 . "Sec-WebSocket-Key: $key\r\n"
@@ -115,7 +116,7 @@ class Client
 
         if (!$sp) {
             $error_string = "Unable to connect to websocket server: $errstr ($errno)";
-            return false;
+            throw new ConnectionException($error_string);
         }
 
         // Set timeouts
@@ -127,7 +128,7 @@ class Client
             $rc = fwrite($sp, $header);
             if (!$rc) {
                 $error_string = "Unable to send upgrade header to websocket server: $errstr ($errno)";
-                return false;
+                throw new ConnectionException($error_string);
             }
 
             // Read response into an assotiative array of headers. Fails if upgrade failes.
@@ -137,12 +138,13 @@ class Client
             if (stripos($reaponse_header, ' 101 ') === false || stripos($reaponse_header, 'Sec-WebSocket-Accept: ') === false) {
                 $error_string = "Server did not accept to upgrade connection to websocket."
                         . $reaponse_header . E_USER_ERROR;
-                return false;
+                throw new ConnectionException($error_string);
             }
             // The key we send is returned, concatenate with "258EAFA5-E914-47DA-95CA-
             // C5AB0DC85B11" and then base64-encoded. one can verify if one feels the need...
         }
-        return $sp;
+
+        $this->connection = $sp;
     }
 
     /* ============================================================================*\
@@ -165,16 +167,17 @@ class Client
       indicate if this block is sent in binary or text mode.  Default true/binary
       \*============================================================================ */
 
-    public function websocket_write($sp, $data, $final = true, $binary = true)
+    public function write($data, bool $final = true, bool $binary = true)
     {
         // Assemble header: FINal 0x80 | Mode (0x02 binary, 0x01 text)
 
-        if ($binary)
+        if ($binary) {
             $header = chr(($final ? 0x80 : 0) | 0x02); // 0x02 binary mode
-        else
+        } else {
             $header = chr(($final ? 0x80 : 0) | 0x01); // 0x01 text mode
-           
-        // Mask 0x80 | payload length (0-125)
+        }
+
+        /* Mask 0x80 | payload length (0-125) */
         if (strlen($data) < 126)
             $header .= chr(0x80 | strlen($data));
         elseif (strlen($data) < 0xFFFF)
@@ -190,7 +193,7 @@ class Client
         for ($i = 0; $i < strlen($data); $i++)
             $data[$i] = chr(ord($data[$i]) ^ ord($mask[$i % 4]));
 
-        return fwrite($sp, $header . $data);
+        return fwrite($this->connection, $header . $data);
     }
 
     /* ============================================================================*\
@@ -213,16 +216,16 @@ class Client
       - Reading data while handling/ignoring other kind of packages
       \*============================================================================ */
 
-    public function websocket_read($sp, &$error_string = NULL)
+    public function read(&$error_string = NULL)
     {
         $data = "";
 
         do {
             // Read header
-            $header = fread($sp, 2);
+            $header = fread($this->connection, 2);
             if (!$header) {
                 $error_string = "Reading header from websocket failed.";
-                return false;
+                throw new ConnectionException($error_string);
             }
 
             $opcode = ord($header[0]) & 0x0F;
@@ -236,10 +239,10 @@ class Client
                 $ext_len = 2;
                 if ($payload_len == 0x7F)
                     $ext_len = 8;
-                $header = fread($sp, $ext_len);
+                $header = fread($this->connection, $ext_len);
                 if (!$header) {
                     $error_string = "Reading header extension from websocket failed.";
-                    return false;
+                    throw new ConnectionException($error_string);
                 }
 
                 // Set extented paylod length
@@ -250,20 +253,20 @@ class Client
 
             // Get Mask key
             if ($masked) {
-                $mask = fread($sp, 4);
+                $mask = fread($this->connection, 4);
                 if (!$mask) {
                     $error_string = "Reading header mask from websocket failed.";
-                    return false;
+                    throw new ConnectionException($error_string);
                 }
             }
 
             // Get payload
             $frame_data = '';
             while ($payload_len > 0) {
-                $frame = fread($sp, $payload_len);
+                $frame = fread($this->connection, $payload_len);
                 if (!$frame) {
                     $error_string = "Reading from websocket failed.";
-                    return false;
+                    throw new ConnectionException($error_string);
                 }
                 $payload_len -= strlen($frame);
                 $frame_data .= $frame;
@@ -272,12 +275,12 @@ class Client
             // Handle ping requests (sort of) send pong and continue to read
             if ($opcode == 9) {
                 // Assamble header: FINal 0x80 | Opcode 0x0A + Mask on 0x80 with zero payload
-                fwrite($sp, chr(0x8A) . chr(0x80) . pack("N", rand(1, 0x7FFFFFFF)));
+                fwrite($this->connection, chr(0x8A) . chr(0x80) . pack("N", rand(1, 0x7FFFFFFF)));
                 continue;
 
                 // Close
             } elseif ($opcode == 8) {
-                fclose($sp);
+                fclose($this->connection);
 
                 // 0 = continuation frame, 1 = text frame, 2 = binary frame
             } elseif ($opcode < 3) {
