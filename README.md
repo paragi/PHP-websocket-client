@@ -1,13 +1,13 @@
 ## Websocket client for PHP
 
 Use PHP to connect to at websocket service.
-These 3 functions makes the websocket negotiation and connection and handle the hybi10 frame encoding required.
+These 3 methods make the websocket negotiation and connection and handle the hybi10 frame encoding required.
 
 Example 1:
 ```php
-if( $sp = websocket_open('echo.websocket.org',80) ) {
-   websocket_write($sp,"hello server");
-   echo "Server responed with: " . websocket_read($sp,$errstr);
+if( $sp = new \Paragi\PhpWebsocket\Client('echo.websocket.org',80) ) {
+   $sp->write($"hello server");
+   echo "Server responed with: " . $sp->read($errstr);
 }
 ```
 
@@ -15,11 +15,11 @@ if( $sp = websocket_open('echo.websocket.org',80) ) {
 Example 2, using a session cookie and setting timeout:
 ```php
 $headers = ["Cookie: SID=".session_id()];
-$sp = websocket_open('echo.websocket.org',80,$headers,$errstr,16);
+$sp = new \Paragi\PhpWebsocket\Client('echo.websocket.org',80,$headers,$errstr,16);
 if($sp){
-   $bytes_written = websocket_write($sp,"hello server");
+   $bytes_written = $sp->write("hello server");
    if($bytes_written){
-     $data = websocket_read($sp,$errstr);
+     $data = $sp->read($errstr);
      echo "Server responed with: " . $errstr ? $errstr : $data;
    }
 }
@@ -27,15 +27,15 @@ if($sp){
 
 Example 3, using SSL
 ```php
-if( $sp = websocket_open('echo.websocket.org',443,'',$errstr, 10,true) ) {
-   websocket_write($sp,"hello server");
-   echo "Server responed with: " . websocket_read($sp,$errstr);
+if( $sp = new \Paragi\PhpWebsocket\Client('echo.websocket.org',443,'',$errstr, 10,true) ) {
+   $sp->write("hello server");
+   echo "Server responed with: " . $sp->read($errstr);
 }
 ```
 
-# Functions:
+# Methods:
 
-## websocket_open
+## Constructor
 
 Open websocket connection
 
@@ -56,27 +56,21 @@ Open websocket connection
 **returns** a resource handle or false.
 
 
-## websocket_write
+## write
 
 Send data to server through the websocket, using hybi10 frame encoding.
 
 `int` websocket_write(`resource` $handle, `string` $data [,`boolean` $final])
 
-**handle** the resource handle returned by websocket_open, if successful
-
 **data** Data to transport to server
 
 **final** (optional) indicate if this block is the final data block of this request. Default true  
 
-## websocket_read
+## read
 
 Read data through websocket from the server, using hybi10 frame encoding.
 
-
 `string` websocket_read(`resource` $handle [,`string` &error_string])
-
-
-**handle** the resource handle returned by websocket_open, if successful.
 
 **error_string** (optional) A referenced variable to store error messages, i any.
 
