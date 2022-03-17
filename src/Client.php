@@ -81,7 +81,7 @@ class Client
       "Sec-WebSocket-Accept"
       \*============================================================================ */
 
-    public function websocket_open(string $host = '', int $port = 80, $headers = '', string &$error_string = '', int $timeout = 10, bool $ssl = false, bool $persistant = false, string $path = '/', $context = null)
+    public function websocket_open(string $host = '', int $port = 80, $headers = '', &$error_string = '', int $timeout = 10, bool $ssl = false, bool $persistant = false, string $path = '/', $context = null)
     {
 
         // Generate a key (to convince server that the update is not random)
@@ -173,12 +173,8 @@ class Client
             $header = chr(($final ? 0x80 : 0) | 0x02); // 0x02 binary mode
         else
             $header = chr(($final ? 0x80 : 0) | 0x01); // 0x01 text mode
-
-
-
-
-            
-// Mask 0x80 | payload length (0-125)
+           
+        // Mask 0x80 | payload length (0-125)
         if (strlen($data) < 126)
             $header .= chr(0x80 | strlen($data));
         elseif (strlen($data) < 0xFFFF)
