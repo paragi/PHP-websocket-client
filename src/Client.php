@@ -112,9 +112,9 @@ class Client
 
         $flags = STREAM_CLIENT_CONNECT | ( $persistant ? STREAM_CLIENT_PERSISTENT : 0 );
         $ctx = $context ?? stream_context_create();
-        $sp = stream_socket_client($address, $errno, $errstr, $timeout, $flags, $ctx);
+        $sp = @\stream_socket_client($address, $errno, $errstr, $timeout, $flags, $ctx);
 
-        if (!$sp) {
+        if ($sp === false) {
             $error_string = "Unable to connect to websocket server: $errstr ($errno)";
             throw new ConnectionException($error_string);
         }
@@ -193,7 +193,12 @@ class Client
         for ($i = 0; $i < strlen($data); $i++)
             $data[$i] = chr(ord($data[$i]) ^ ord($mask[$i % 4]));
 
-        return fwrite($this->connection, $header . $data);
+        $written = fwrite($this->connection, $header . $data);
+        if (false === $written) {
+            throw new ConnectionException('Unable to write to websocket');
+        }
+
+        return $written;
     }
 
     /* ============================================================================*\
