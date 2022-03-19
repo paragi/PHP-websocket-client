@@ -39,7 +39,7 @@
 
 namespace Paragi\PhpWebsocket;
 
-class Client
+class Client implements ClientInterface
 {
 
     protected $connection;
