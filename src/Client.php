@@ -47,7 +47,7 @@ class Client
     /* ============================================================================*\
       Open websocket connection
 
-      resource websocket_open(string $host [,int $port [,$additional_headers [,string &error_string ,[, int $timeout]]]]
+      __construct(string $host [,int $port [,$additional_headers [,string &error_string ,[, int $timeout]]]]
 
       host
       A host URL. It can be a domain name like www.example.com or an IP address,
@@ -89,13 +89,13 @@ class Client
         $key = base64_encode(openssl_random_pseudo_bytes(16));
 
         $header = "GET " . $path . " HTTP/1.1\r\n"
-                . "Host: $host\r\n"
-                . "pragma: no-cache\r\n"
-                . "User-Agent: paragi/php-websocket-client\r\n"
-                . "Upgrade: WebSocket\r\n"
-                . "Connection: Upgrade\r\n"
-                . "Sec-WebSocket-Key: $key\r\n"
-                . "Sec-WebSocket-Version: 13\r\n";
+            . "Host: $host\r\n"
+            . "pragma: no-cache\r\n"
+            . "User-Agent: paragi/php-websocket-client\r\n"
+            . "Upgrade: WebSocket\r\n"
+            . "Connection: Upgrade\r\n"
+            . "Sec-WebSocket-Key: $key\r\n"
+            . "Sec-WebSocket-Version: 13\r\n";
 
         // Add extra headers
         if (!empty($headers))
@@ -112,6 +112,8 @@ class Client
 
         $flags = STREAM_CLIENT_CONNECT | ( $persistant ? STREAM_CLIENT_PERSISTENT : 0 );
         $ctx = $context ?? stream_context_create();
+
+        // the '@' to silent the Warning Error. Don't get mad, errors are handled below with Exception
         $sp = @\stream_socket_client($address, $errno, $errstr, $timeout, $flags, $ctx);
 
         if ($sp === false) {
@@ -137,7 +139,7 @@ class Client
             // status code 101 indicates that the WebSocket handshake has completed.
             if (stripos($reaponse_header, ' 101 ') === false || stripos($reaponse_header, 'Sec-WebSocket-Accept: ') === false) {
                 $error_string = "Server did not accept to upgrade connection to websocket."
-                        . $reaponse_header . E_USER_ERROR;
+                    . $reaponse_header . E_USER_ERROR;
                 throw new ConnectionException($error_string);
             }
             // The key we send is returned, concatenate with "258EAFA5-E914-47DA-95CA-
@@ -150,12 +152,9 @@ class Client
     /* ============================================================================*\
       Write to websocket
 
-      int websocket_write(resource $handle, string $data ,[boolean $final])
+      int write(string $data ,[boolean $final])
 
       Write a chunk of data through the websocket, using hybi10 frame encoding
-
-      handle
-      the resource handle returned by websocket_open, if successful
 
       data
       Data to transport to server
@@ -170,7 +169,6 @@ class Client
     public function write($data, bool $final = true, bool $binary = true)
     {
         // Assemble header: FINal 0x80 | Mode (0x02 binary, 0x01 text)
-
         if ($binary) {
             $header = chr(($final ? 0x80 : 0) | 0x02); // 0x02 binary mode
         } else {
@@ -204,7 +202,7 @@ class Client
     /* ============================================================================*\
       Read from websocket
 
-      string websocket_read(resource $handle [,string &error_string])
+      string read([string &error_string])
 
       read a chunk of data from the server, using hybi10 frame encoding
 
@@ -270,7 +268,7 @@ class Client
             while ($payload_len > 0) {
                 $frame = fread($this->connection, $payload_len);
                 if (!$frame) {
-                    $error_string = "Reading from websocket failed.";
+                    $error_string = "Reading payload from websocket failed.";
                     throw new ConnectionException($error_string);
                 }
                 $payload_len -= strlen($frame);
@@ -298,7 +296,7 @@ class Client
                     $data .= $frame_data;
             } else
                 continue;
-        }while (!$final);
+        } while (!$final);
 
         return $data;
     }

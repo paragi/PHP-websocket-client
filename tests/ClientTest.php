@@ -12,12 +12,25 @@ use PHPUnit\Framework\TestCase;
 class ClientTest extends TestCase
 {
 
-    const testServer = 'echo.websocket.events';  // echo.websocket.org is no longer available
+    const testServerDomain = '127.0.0.1';
+    const testServerPort = 9999;
+
+    public function testConnectToLocalEchoingServer()
+    {
+        try {
+            $obj = new Client(self::testServerDomain, self::testServerPort);
+            $this->assertInstanceOf(Client::class, $obj);
+        } catch (\Paragi\PhpWebsocket\ConnectionException $e) {
+            $this->assertTrue(false, 'Unable to connect to test server. Did you forget to launch the test server ?');
+        }
+    }
 
     public function getMessage(): array
     {
         return [
-            ["hello server"]
+            ["hello server"],
+            ["Here's a binary \x01\x02\x03"],
+            ['So Long, and Thanks for All the Fish']
         ];
     }
 
@@ -26,14 +39,11 @@ class ClientTest extends TestCase
      */
     public function testExample(string $message)
     {
-        $sut = new Client(self::testServer, 80, '', $errstr, 10, false);
+        $sut = new Client(self::testServerDomain, self::testServerPort, '', $errstr, 3, false);
         $written = $sut->write($message);
-        $this->assertNotFalse($written, 'Unable to write to ' . self::testServer);
+        $this->assertNotFalse($written, 'Unable to write to ' . self::testServerDomain);
         $response = $sut->read($errstr);
-        $this->assertThat($response, $this->logicalOr(
-                $this->stringContains('hello server'),
-                $this->stringContains('sponsored by') // sometimes, the server answers with an advertisement
-        ));
+        $this->assertEquals($message, $response);
     }
 
     public function testUnknowHost()
@@ -46,6 +56,7 @@ class ClientTest extends TestCase
     public function testNotAWebsocketServer()
     {
         $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessage('upgrade connection');
         new Client('twitter.com');
     }
 
