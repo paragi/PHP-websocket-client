@@ -18,10 +18,12 @@
         </testsuite>
     </testsuites>
 
-    <coverage cacheDirectory=".phpunit.cache/code-coverage"
-              processUncoveredFiles="true">
+    <coverage>
         <include>
-            <directory suffix=".php">src</directory>
+            <directory>./src</directory>
         </include>
+        <report>
+            <html outputDirectory="./.coverage" lowUpperBound="50" highLowerBound="90"/>
+        </report>
     </coverage>
 </phpunit>

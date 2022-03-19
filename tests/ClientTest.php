@@ -30,13 +30,16 @@ class ClientTest extends TestCase
         $written = $sut->write($message);
         $this->assertNotFalse($written, 'Unable to write to ' . self::testServer);
         $response = $sut->read($errstr);
-        $this->assertStringContainsString($message, $response);
+        $this->assertThat($response, $this->logicalOr(
+                $this->stringContains('hello server'),
+                $this->stringContains('sponsored by') // sometimes, the server answers with an advertisement
+        ));
     }
 
     public function testUnknowHost()
     {
-        $this->expectError(); // @todo perhaps this behavior should change, throw Exception ?
-        $this->expectErrorMessage('getaddrinfo failed');
+        $this->expectException(ConnectionException::class);
+        $this->expectExceptionMessage('getaddrinfo failed');
         new Client('yoloserver.unknown');
     }
 
