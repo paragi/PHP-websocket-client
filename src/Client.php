@@ -5,6 +5,8 @@
 
   By Paragi 2013, Simon Riget MIT license.
 
+  Conversion to Object-oriented programming by Florent Genette
+
   This basic implementation, waits for the whole message to arive, before
   returning on a read. There is no support for partial and multiplexing packages.
   All othert packagees are ignored, until a full package is read.
