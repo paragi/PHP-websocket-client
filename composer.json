@@ -1,0 +1,16 @@
+{
+    "name": "paragi/php-websocket-client",
+    "description": "Websocket client",
+    "type": "library",
+    "require-dev": {
+        "phpunit/phpunit": "9.5.x-dev",
+        "cboden/ratchet": "dev-master"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Paragi\\PhpWebsocket\\": "src/"
+        }
+    },
+    "minimum-stability": "dev"
+}
